@@ -1,8 +1,9 @@
-import ast 
+import ast
 import time
 import threading
+from typing import Optional
 
-from websocket import create_connection
+from websocket import create_connection, WebSocketConnectionClosedException
 
 from cmd_chat.client.core.crypto import RSAService
 from cmd_chat.client.core.default_renderer import DefaultClientRenderer
@@ -14,107 +15,157 @@ from cmd_chat.client.config import RENDER_TIME
 class Client(RSAService, RichClientRenderer):
 
     def __init__(
-        self, 
-        server: str, 
-        port: int, 
-        username: str
+        self,
+        server: str,
+        port: int,
+        username: str,
+        password: Optional[str] = None
     ):
         super().__init__()
-        # Server info 
         self.server = server
         self.port = port
         self.username = username
-        # Urls 
+        self.password = password or ""
         self.base_url = f"http://{self.server}:{self.port}"
-        self.talk_url = f"{self.base_url}/talk"
-        self.info_url = f"{self.base_url}/update"
-        self.key_url = f"{self.base_url}/get_key"
         self.ws_url = f"ws://{self.server}:{self.port}"
         self.close_response = str({
             "action": "close",
             "username": self.username
         })
-        # Threads 
-        self.__stop_threads = False 
+        self.__stop_threads = False
+
+    def _ws_full(self, path: str) -> str:
+        if self.password:
+            return f"{self.ws_url}{path}?password={self.password}"
+        return f"{self.ws_url}{path}"
+
+    def _connect_ws(self, path: str, retries: int = 5, backoff: float = 0.5):
+        last_exc = None
+        for attempt in range(retries):
+            try:
+                return create_connection(self._ws_full(path))
+            except Exception as exc:
+                last_exc = exc
+                time.sleep(backoff * (2 ** attempt))
+        print(f"Can't connect to {path}: {last_exc}")
+        raise last_exc
 
     def send_info(self):
-        """ sending message to websocket
-        """
-        ws = create_connection(f"{self.ws_url}/talk")
-        while not self.__stop_threads:
+        ws = self._connect_ws("/talk")
+        try:
+            while not self.__stop_threads:
+                try:
+                    user_input = input("You're message: ")
+                    if user_input == "q":
+                        self.__stop_threads = True
+                        try:
+                            if ws:
+                                ws.send(self.close_response)
+                                ws.close()
+                        except Exception:
+                            pass
+                        break
+                    message = f'{self.username}: {user_input}'
+                    socket_message = str({
+                        "text": self._encrypt(message),
+                        "username": self.username
+                    })
+                    ws.send(socket_message)
+                except (WebSocketConnectionClosedException, ConnectionResetError, ConnectionAbortedError, OSError):
+                    try:
+                        if ws:
+                            try:
+                                ws.close()
+                            except Exception:
+                                pass
+                        ws = self._connect_ws("/talk")
+                        continue
+                    except Exception:
+                        print("Can't establish channel")
+                        self.__stop_threads = True
+                        break
+                except KeyboardInterrupt:
+                    self.__stop_threads = True
+                    try:
+                        ws.send(self.close_response)
+                        ws.close()
+                    except Exception:
+                        pass
+                    break
+        finally:
             try:
-                user_input = input("You're message: ")
-                if user_input == "q":
-                    self.__stop_threads = True 
-                message = f'{self.username}: {user_input}'
-                socket_message = str({
-                    "text": self._encrypt(message),
-                    "username": self.username
-                })
-                ws.send(payload=socket_message.encode())
-            except KeyboardInterrupt:
-                ws.send(self.close_response)
                 ws.close()
-                self.__stop_threads = True 
-            except Exception as exc:
-                ws.send(self.close_response)
-                ws.close()
-                print("Something went wrong! ", exc)
-                self.__stop_threads = True 
-                raise exc 
+            except Exception:
+                pass
 
     def update_info(self):
-        """ connecting to websocket,
-            wating for updates, 
-            updating every RENDER_TIME seconds
-        """
-        ws = create_connection(f"{self.ws_url}/update")
+        ws = self._connect_ws("/update")
         last_try = None
-        while not self.__stop_threads:
+        try:
+            while not self.__stop_threads:
+                try:
+                    time.sleep(RENDER_TIME)
+                    raw = ws.recv()
+                    if isinstance(raw, bytes):
+                        raw = raw.decode("utf-8")
+                    response = ast.literal_eval(raw)
+                    if last_try == response:
+                        continue
+                    last_try = response
+                    self.clear_console()
+                    if len(last_try["messages"]) > 0:
+                        self.print_chat(response=last_try)
+                except (WebSocketConnectionClosedException, ConnectionResetError, ConnectionAbortedError, OSError):
+                    try:
+                        if ws:
+                            try:
+                                ws.close()
+                            except Exception:
+                                pass
+                        ws = self._connect_ws("/update")
+                        continue
+                    except Exception:
+                        print("Connection lost: can't establish update channel")
+                        self.__stop_threads = True
+                        break
+                except KeyboardInterrupt:
+                    self.__stop_threads = True
+                    try:
+                        ws.send(self.close_response)
+                        ws.close()
+                    except Exception:
+                        pass
+                    break
+        finally:
             try:
-                time.sleep(RENDER_TIME)
-                response = ast.literal_eval(ws.recv().decode('utf-8'))
-                if last_try == response:
-                    continue
-                last_try = response
-                self.clear_console()
-                if len(last_try["messages"]) > 0:
-                    self.print_chat(response = last_try)
-            except KeyboardInterrupt:
-                ws.send(self.close_response)
                 ws.close()
-                self.__stop_threads = True 
-            except ConnectionAbortedError:
-                # Reconnect if somehow client was disconnected
-                ws = create_connection(f"{self.ws_url}/update")
-                continue
-            except Exception as exc:
-                ws.send(self.close_response)
-                ws.close()
-                print("Something went wrong! ", exc)
-                self.__stop_threads = True 
-                raise exc 
-            
+            except Exception:
+                pass
+
     def _validate_keys(self) -> None:
-        self._request_key(self.key_url, self.username)
+        self._request_key(
+            url=f"{self.base_url}/get_key",
+            username=self.username,
+            password=self.password
+        )
         self._remove_keys()
 
     def run(self):
-        # Running two threads,
-        # One for sending info
-        # Second one for updating info
         self._validate_keys()
         threads = [
-            threading.Thread(target=self.send_info),
-            threading.Thread(target=self.update_info)
+            threading.Thread(target=self.send_info, daemon=True),
+            threading.Thread(target=self.update_info, daemon=True)
         ]
         for th in threads:
             th.start()
+        for th in threads:
+            th.join()
 
 
 if __name__ == '__main__':
     Client(
         server=input("server ip:\n"),
         port=int(input("server port: \n")),
-        username=input("username:\n").replace(" ", "").lower()
+        username=input("username:\n").replace(" ", "").lower(),
+        password=input("password:\n")
     ).run()

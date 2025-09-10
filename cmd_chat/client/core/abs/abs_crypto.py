@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 
-
 class CryptoService(ABC):
 
     @abstractmethod
@@ -12,7 +11,7 @@ class CryptoService(ABC):
         raise NotImplementedError("Need to implement decrypt method")
 
     @abstractmethod
-    def _request_key(self, url: str, username: str):
+    def _request_key(self, url: str, username: str, password: str | None = None):
         raise NotImplementedError("Need to implement request key method")
 
     @abstractmethod

@@ -19,17 +19,20 @@ class RSAService(CryptoService):
         self._generate_keys()
 
     def _encrypt(self, message: str) -> str:
-        return self.fernet.encrypt(message.encode())
+        return self.fernet.encrypt(message.encode()).decode("utf-8")
 
     def _decrypt(self, message: str) -> str:
         return self.fernet.decrypt(message.encode()).decode("utf-8")
 
-    def _request_key(self, url: str, username: str):
+    def _request_key(self, url: str, username: str, password: str | None = None):
         data = {
             "pubkey": self._open_generated_file(self.public_key_name),
             "username": username
         }
-        r = requests.get(url, data=data, stream=True)
+        if password:
+            data["password"] = password
+        r = requests.post(url, files={"pubkey": ("public.pem", data["pubkey"])}, data={"username": username, "password": password or ""}, stream=True)
+        r.raise_for_status()
         message = r.raw.read(999)
         self.symmetric_key = rsa.decrypt(message, self.private_key)
         self.fernet = Fernet(self.symmetric_key)
@@ -63,4 +66,7 @@ class RSAService(CryptoService):
 
     def _remove_keys(self):
         for key in self.keys_path:
-            os.remove(key)
+            try:
+                os.remove(key)
+            except FileNotFoundError:
+                pass
