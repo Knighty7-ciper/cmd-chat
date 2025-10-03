@@ -160,12 +160,3 @@ class Client(RSAService, RichClientRenderer):
             th.start()
         for th in threads:
             th.join()
-
-
-if __name__ == '__main__':
-    Client(
-        server=input("server ip:\n"),
-        port=int(input("server port: \n")),
-        username=input("username:\n").replace(" ", "").lower(),
-        password=input("password:\n")
-    ).run()
