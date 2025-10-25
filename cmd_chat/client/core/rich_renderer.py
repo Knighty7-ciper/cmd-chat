@@ -7,7 +7,7 @@ from rich.console import Console
 
 from rich.table import Table
 from cmd_chat.client.core.abs.abs_renderer import ClientRenderer
-from cmd_chat.client.config import MESSAGES_TO_SHOW
+from cmd_chat.client.config import UI_CONFIG
 
 
 console = Console(width=75)
@@ -58,7 +58,7 @@ class RichClientRenderer(ClientRenderer):
 
     def print_chat(self, response: list[str]) -> str:
         self.clear_console()
-        for i, msg in enumerate(response["messages"][-MESSAGES_TO_SHOW:]):
+        for i, msg in enumerate(response["messages"][-UI_CONFIG["max_display_messages"]:]):
             actual_message = self._decrypt(msg)
             if i == 0:
                 console.print("Users in chat:", justify="left")

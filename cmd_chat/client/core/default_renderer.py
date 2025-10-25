@@ -23,8 +23,9 @@ class DefaultClientRenderer(ClientRenderer):
         """
         message = message.split(":")
         if message[0] == self.username:
-            return COLORS["my_username_color"] + message[0] + ": " + message[1] + COLORS["text_color"]
-        return message[0] + ": " + message[1] + COLORS["text_color"]
+            return (COLORS.get("my_username_color", "") + message[0] + ": " + message[1] + 
+                    COLORS.get("text_color", ""))
+        return message[0] + ": " + message[1] + COLORS.get("text_color", "")
 
     def clear_console(self):
         # For windows clear command its cls
@@ -38,13 +39,13 @@ class DefaultClientRenderer(ClientRenderer):
         self,
         ip: str
     ) -> str:
-        return f"IP: " + COLORS["ip_color"] + ip + COLORS["text_color"]
+        return f"IP: " + COLORS.get("ip_color", "") + ip + COLORS.get("text_color", "")
     
     def print_username(
         self,
         username: str
     ) -> str:
-        return f"USERNAME: " + COLORS["ip_color"] + username + COLORS["username_color"]
+        return f"USERNAME: " + COLORS.get("ip_color", "") + username + COLORS.get("username_color", "")
 
     def print_chat(self, response: list[str]) -> str:
         for i, msg in enumerate(response["messages"]):
