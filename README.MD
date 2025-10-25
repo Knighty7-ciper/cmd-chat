@@ -17,21 +17,21 @@ Foked this from  @emilycodestar and i think its really something everybody needs
 - Room-specific user lists and message history
 - Public and private room support
 
-### 🎨 **Beautiful Rich Interface**
+###  **Beautiful Rich Interface**
 - **4 Color Themes**: Dark, Light, Colorful, and Neon
 - Rich terminal formatting with panels, tables, and markdown
 - Real-time user indicators and connection status
 - Emoji support with keyboard shortcuts (`:)` → `😊`)
 - Timestamp display and user @mentions
 
-### 🛡️ **Security & Performance**
+###  **Security & Performance**
 - **Upgraded Cryptography**: RSA 2048-bit (upgraded from 512)
 - **Modern Encryption**: AES-128 with PBKDF2 key derivation
 - **Rate Limiting**: Anti-spam protection (10 messages/minute)
 - **Better Error Handling**: Robust reconnection with exponential backoff
 - **Performance Optimized**: Smooth 60fps rendering, efficient memory usage
 
-### 🧰 **Rich Command System**
+###  **Rich Command System**
 - `/help` - Interactive help with examples
 - `/rooms` - List available rooms with user counts
 - `/join <room>` - Switch to a different room
@@ -41,16 +41,6 @@ Foked this from  @emilycodestar and i think its really something everybody needs
 - `/status` - Connection and performance statistics
 - `/clear` - Clear the screen
 - `/history` - View message history
-
-### 📱 **User Experience**
-- **Real-time Updates**: Live user list and room status
-- **Connection Management**: Automatic reconnection with smart backoff
-- **Message History**: Optional persistent encrypted history
-- **Keyboard Shortcuts**: Ctrl+C to quit, Tab for auto-completion
-- **System Messages**: Join/leave notifications
-- **Status Indicators**: Connection status, uptime, message counts
-
----
 
 ## 🔒 Security Features
 
@@ -63,7 +53,7 @@ Foked this from  @emilycodestar and i think its really something everybody needs
 
 ---
 
-## 🚀 Installation & Quick Start
+##  Installation & Quick Start
 
 ### Prerequisites
 - Python 3.8 or higher
@@ -114,7 +104,7 @@ python cmd_chat.py connect localhost 8000 charlie mysecret --no-colors
 
 ---
 
-## 🎮 Usage Examples
+##  Usage Examples
 
 ### **Room Management**
 ```
@@ -189,7 +179,7 @@ python cmd_chat.py connect localhost 8000 charlie mysecret --no-colors
 
 ---
 
-## 🏗️ Architecture
+##  Architecture
 
 ### **Server Components**
 - **Sanic Web Framework**: High-performance async web server
@@ -207,7 +197,7 @@ python cmd_chat.py connect localhost 8000 charlie mysecret --no-colors
 
 ---
 
-## 🛠️ Development
+##  Development
 
 ### **File Structure**
 ```
