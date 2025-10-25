@@ -1,4 +1,4 @@
-fFked this from  @emilycodestar and i think its really something everybody needs, esp at school, no internet access needed you just need to be in the same network now, n yes its fully functional. This is the updated version i ran some advancements to suite my needs and im finding it really helpful.
+Foked this from  @emilycodestar and i think its really something everybody needs, esp at school, no internet access needed you just need to be in the same network now, n yes its fully functional. This is the updated version i ran some advancements to suite my needs and im finding it really helpful.
 
 
 # CMD Chat v2.0
