@@ -1,3 +1,6 @@
+fFked this from  @emilycodestar and i think its really something everybody needs, esp at school, no internet access needed you just need to be in the same network now, n yes its fully functional. This is the updated version i ran some advancements to suite my needs and im finding it really helpful.
+
+
 # CMD Chat v2.0
 
 **CMD Chat** is a modern, feature-rich console communication platform with multiple rooms, beautiful UI, and enterprise-grade security. Building on the original concept while adding significant improvements for usability and functionality.
@@ -70,7 +73,7 @@
 
 1. **Clone the repository:**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/Knighty7-ciper/cmd-chat
    cd cmd-chat-main
    ```
 
@@ -259,47 +262,3 @@ Enable debug logging:
 ```bash
 python cmd_chat.py serve localhost 8000 --password pass --dev
 ```
-
----
-
-## 📊 System Requirements
-
-- **Python**: 3.8 or higher
-- **Memory**: 100MB minimum, 500MB recommended
-- **CPU**: Low usage (suitable for Raspberry Pi)
-- **Network**: WebSocket support required
-- **Terminal**: ANSI color support recommended
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! Areas for enhancement:
-- File transfer support
-- Voice messages
-- Bot framework
-- Mobile applications
-- Advanced moderation tools
-- Performance optimizations
-
----
-
-## 📄 License
-
-See LICENSE file for details.
-
----
-
-## 🎯 What's Next?
-
-Planned features for v2.1:
-- **File Transfer**: Encrypted file sharing between users
-- **Voice Messages**: Audio message recording and playback
-- **Bot Framework**: Create custom chat bots and integrations
-- **Web Interface**: Browser-based chat alongside CLI
-- **Moderation Tools**: Admin controls and room management
-- **Advanced Encryption**: Perfect forward secrecy and forward secrecy
-
----
-
-**CMD Chat** - Where privacy meets usability! 🔒✨
